@@ -1,0 +1,6 @@
+{
+  "rules": {
+    "doctype-style": "off",
+    "void-style": "off"
+  }
+}

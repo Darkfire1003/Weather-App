@@ -1,0 +1,45 @@
+{
+  "kind": "collectionType",
+  "collectionName": "wetters",
+  "info": {
+    "singularName": "wetter",
+    "pluralName": "wetters",
+    "displayName": "wetter"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "city": {
+      "type": "string"
+    },
+    "temperature": {
+      "type": "decimal"
+    },
+    "condition": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "string"
+    },
+    "minTemp": {
+      "type": "decimal"
+    },
+    "maxTemp": {
+      "type": "decimal"
+    },
+    "chanceRain": {
+      "type": "decimal"
+    },
+    "windKph": {
+      "type": "decimal"
+    },
+    "humidity": {
+      "type": "decimal"
+    },
+    "feelsLike": {
+      "type": "decimal"
+    }
+  }
+}
