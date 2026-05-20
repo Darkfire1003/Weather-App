@@ -41,6 +41,105 @@
     </header>
 
     <main class="mx-auto px-4 py-8">
+      <!-- Registrierung -->
+      <div
+        id="registerModal"
+        class="hidden w-full fixed inset-0 z-50 bg-black/60 flex justify-center items-center overflow-y-auto py-6 px-4"
+        onclick="closeAuthModal(event)"
+      >
+        <form id="registerForm" class="auth-signup-form container">
+          <p class="auth-signup-title">Register</p>
+          <p class="auth-signup-message">
+            Signup now and get full access to our app.
+          </p>
+
+          <div class="auth-signup-row">
+            <label>
+              <input
+                class="auth-signup-input"
+                type="text"
+                name="firstname"
+                placeholder=""
+                required
+              />
+              <span>Firstname</span>
+            </label>
+
+            <label>
+              <input
+                class="auth-signup-input"
+                type="text"
+                name="lastname"
+                placeholder=""
+                required
+              />
+              <span>Lastname</span>
+            </label>
+          </div>
+
+          <label>
+            <input
+              class="auth-signup-input"
+              type="email"
+              name="email"
+              placeholder=""
+              required
+            />
+            <span>Email</span>
+          </label>
+
+          <label>
+            <input
+              class="auth-signup-input"
+              type="password"
+              name="password"
+              placeholder=""
+              required
+            />
+            <span>Password</span>
+          </label>
+
+          <button type="submit" class="auth-signup-submit">Submit</button>
+          <p class="auth-signup-signin">
+            Already have an account? <a href="#">Signin</a>
+          </p>
+        </form>
+      </div>
+
+      <!-- Login -->
+      <div
+        id="logInModal"
+        class="hidden w-full fixed inset-0 z-50 bg-black/60 flex justify-center items-center overflow-y-auto py-6 px-4"
+        onclick="closeAuthModal(event)"
+      >
+        <form id="loginForm" class="auth-signup-form container">
+          <p class="auth-signup-title">Login</p>
+
+          <label>
+            <input
+              class="auth-signup-input"
+              type="email"
+              name="identifier"
+              placeholder=""
+              required
+            />
+            <span>Email</span>
+          </label>
+
+          <label>
+            <input
+              class="auth-signup-input"
+              type="password"
+              name="password"
+              placeholder=""
+              required
+            />
+            <span>Password</span>
+          </label>
+
+          <button type="submit" class="auth-signup-submit">Submit</button>
+        </form>
+      </div>
       <section
         class="max-w-4xl mx-auto flex flex-col justify-center items-center"
       >

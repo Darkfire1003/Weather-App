@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@strapi/plugin-cloud": "5.46.0",
+    "@strapi/plugin-documentation": "^5.46.1",
     "@strapi/plugin-users-permissions": "5.46.0",
     "@strapi/strapi": "5.46.0",
     "@tailwindcss/cli": "^4.3.0",

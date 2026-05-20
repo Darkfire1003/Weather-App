@@ -1,4 +1,4 @@
-const apiKey = "55c91109b12f48ef8c564051261805";
+const wetterApiKey = "55c91109b12f48ef8c564051261805";
 const locationInput = document.getElementById("locationInput");
 const locationOutput = document.getElementById("locationOutput");
 const historyOutput = document.getElementById("history");
@@ -32,7 +32,7 @@ function fetchlocation() {
   `;
 
   fetch(
-    `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${city}&days=3&lang=de`,
+    `https://api.weatherapi.com/v1/forecast.json?key=${wetterApiKey}&q=${city}&days=3&lang=de`,
   )
     .then((res) => res.json())
     .then((data) => {
