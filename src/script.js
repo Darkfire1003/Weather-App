@@ -1,13 +1,183 @@
 const wetterApiKey = "55c91109b12f48ef8c564051261805";
+
 const locationInput = document.getElementById("locationInput");
 const locationOutput = document.getElementById("locationOutput");
 const historyOutput = document.getElementById("history");
 const topFiveOutput = document.getElementById("topFive");
+
+const registerModal = document.getElementById("registerModal");
+const registerForm = document.getElementById("registerForm");
+const logInModal = document.getElementById("logInModal");
+const logInForm = document.getElementById("logInForm");
+
+const registerBtn = document.getElementById("registerBtn");
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+
 const locationHistory = [];
 
 let isLoading = false;
 
+function getToken() {
+  return localStorage.getItem("jwt");
+}
+
+function getCurrentUser() {
+  const user = localStorage.getItem("user");
+  return user ? JSON.parse(user) : null;
+}
+
+function updateAuthUI() {
+  const token = getToken();
+
+  if (token) {
+    registerBtn?.classList.add("hidden");
+    loginBtn?.classList.add("hidden");
+    logoutBtn?.classList.remove("hidden");
+  } else {
+    registerBtn?.classList.remove("hidden");
+    loginBtn?.classList.remove("hidden");
+    logoutBtn?.classList.add("hidden");
+  }
+}
+
+function logoutUser() {
+  localStorage.removeItem("jwt");
+  localStorage.removeItem("user");
+
+  alert("Du wurdest ausgeloggt.");
+  updateAuthUI();
+}
+
+function openRegisterModal() {
+  registerModal.classList.remove("hidden");
+  registerModal.classList.add("flex");
+}
+
+function openLogInModal() {
+  logInModal.classList.remove("hidden");
+  logInModal.classList.add("flex");
+}
+
+function closeRegisterModal() {
+  registerModal.classList.add("hidden");
+  registerModal.classList.remove("flex");
+}
+
+function closeLogInModal() {
+  logInModal.classList.add("hidden");
+  logInModal.classList.remove("flex");
+}
+
+function authCloseModal(event) {
+  if (event.target === registerModal) {
+    closeRegisterModal();
+  }
+
+  if (event.target === logInModal) {
+    closeLogInModal();
+  }
+}
+
+registerForm?.addEventListener("submit", async function (event) {
+  event.preventDefault();
+
+  const formData = new FormData(registerForm);
+
+  const firstname = formData.get("firstname").trim();
+  const lastname = formData.get("lastname").trim();
+  const email = formData.get("email").trim();
+  const password = formData.get("password").trim();
+
+  const username = `${firstname} ${lastname}`.trim();
+
+  try {
+    const response = await fetch(
+      "http://localhost:1338/api/auth/local/register",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          email,
+          password,
+        }),
+      },
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data?.error?.message || "Registrierung fehlgeschlagen");
+    }
+
+    console.log("Registrierung erfolgreich:", data);
+
+    localStorage.setItem("jwt", data.jwt);
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    alert("Registrierung erfolgreich");
+    registerForm.reset();
+    closeRegisterModal();
+    updateAuthUI();
+  } catch (error) {
+    console.error("Register Fehler:", error);
+    alert(error.message);
+  }
+});
+
+logInForm?.addEventListener("submit", async function (event) {
+  event.preventDefault();
+
+  const formData = new FormData(logInForm);
+
+  const identifier = formData.get("identifier").trim();
+  const password = formData.get("password").trim();
+
+  try {
+    const response = await fetch("http://localhost:1338/api/auth/local", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        identifier,
+        password,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data?.error?.message || "Login fehlgeschlagen");
+    }
+
+    console.log("Login erfolgreich:", data);
+
+    localStorage.setItem("jwt", data.jwt);
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    alert("Login erfolgreich");
+    logInForm.reset();
+    closeLogInModal();
+    updateAuthUI();
+  } catch (error) {
+    console.error("Login Fehler:", error);
+    alert(error.message);
+  }
+});
+
 function fetchlocation() {
+  const token = getToken();
+
+  if (!token) {
+    alert("Bitte logge dich zuerst ein.");
+    openLogInModal();
+    return;
+  }
+
   const city = locationInput.value.trim();
 
   if (!city) {
@@ -62,10 +232,10 @@ function fetchlocation() {
       if (existingCity) {
         existingCity.searchCount += 1;
         existingCity.lastSearch = new Date().toLocaleString("de-DE");
-
         existingCity.temp = current.temp_c;
         existingCity.condition = current.condition.text;
         existingCity.img = icon;
+        existingCity.imgAlt = current.condition.text;
         existingCity.windKph = current.wind_kph;
         existingCity.humidity = current.humidity;
         existingCity.feelsLike = current.feelslike_c;
@@ -97,13 +267,11 @@ function fetchlocation() {
       }
 
       saveWeatherToStrapi(locationWeather);
-
       renderCurrentWeather(existingCity || locationWeather);
       renderHistory();
       renderTopFive();
 
       localStorage.setItem("weatherHistory", JSON.stringify(locationHistory));
-
       locationInput.value = "";
     })
     .catch((err) => {
@@ -229,9 +397,7 @@ function renderTopFive() {
       ${topFive
         .map(
           (loc, index) => `
-            <div
-              class="p-3 rounded-xl bg-white shadow-md"
-            >
+            <div class="p-3 rounded-xl bg-white shadow-md">
               <div class="flex items-center gap-3">
                 <span class="font-bold text-lg">
                   #${index + 1}
@@ -262,10 +428,13 @@ function renderTopFive() {
 }
 
 function saveWeatherToStrapi(weather) {
+  const token = getToken();
+
   fetch("http://localhost:1338/api/wetters", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify({
       data: {
@@ -324,10 +493,7 @@ function openModal(index) {
 
   modalContent.innerHTML = `
     <div class="cardContainer">
-      <div
-  class="card overflow-y-auto px-7 py-4.5 max-h-[80vh]"
- 
->
+      <div class="card overflow-y-auto px-7 py-4.5 max-h-[80vh]">
         <img src="${loc.img}" alt="${loc.imgAlt}" width="72" height="72" />
         <p class="city" style="font-size:1.1em;">${loc.name}</p>
         <p class="weather" style="font-size:0.85em;">${loc.condition}</p>
@@ -352,34 +518,17 @@ function openModal(index) {
           <p><strong>Max. Wind:</strong> ${loc.maxWindKph} km/h</p>
           <p><strong>Luftfeuchtigkeit:</strong> ${loc.humidity}%</p>
           <p><strong>Gefühlte Temperatur:</strong> ${loc.feelsLike}°</p>
-<div style="margin-top:16px;">
-  <p class="text-white font-bold mb-2">
-    Astronomische Daten
-  </p>
 
-  <p>
-    🌅 Sonnenaufgang:
-    ${loc.forecast[0].sunrise}
-  </p>
+          <div style="margin-top:16px;">
+            <p class="text-white font-bold mb-2">Astronomische Daten</p>
+            <p>🌅 Sonnenaufgang: ${loc.forecast[0].sunrise}</p>
+            <p>🌇 Sonnenuntergang: ${loc.forecast[0].sunset}</p>
+            <p>🌙 Mondphase: ${loc.forecast[0].moonPhase}</p>
+          </div>
 
-  <p>
-    🌇 Sonnenuntergang:
-    ${loc.forecast[0].sunset}
-  </p>
-
-  <p>
-    🌙 Mondphase:
-    ${loc.forecast[0].moonPhase}
-  </p>
-</div>
           <div style="margin-top:16px;">
             <p class="text-white text-center font-bold mb-2.5">&larr; 3-Tage-Vorschau &rarr;</p>
-            <div style="
-  display:flex;
-  gap:8px;
-  overflow-x:auto;
-  padding-bottom:4px;
-">
+            <div style="display:flex; gap:8px; overflow-x:auto; padding-bottom:4px;">
               ${forecastHtml}
             </div>
           </div>
@@ -394,7 +543,6 @@ function openModal(index) {
 
 function openCurrentModal(cityName) {
   const reversedHistory = locationHistory.slice().reverse();
-
   const index = reversedHistory.findIndex((item) => item.name === cityName);
 
   if (index !== -1) {
@@ -407,14 +555,7 @@ function closeModal() {
   weatherModal.classList.add("hidden");
   weatherModal.classList.remove("flex");
 }
-const savedHistory = localStorage.getItem("weatherHistory");
 
-if (savedHistory) {
-  locationHistory.push(...JSON.parse(savedHistory));
-
-  renderHistory();
-  renderTopFive();
-}
 function deleteHistory(index) {
   locationHistory.splice(index, 1);
 
@@ -427,3 +568,13 @@ function deleteHistory(index) {
     locationOutput.innerHTML = "";
   }
 }
+
+const savedHistory = localStorage.getItem("weatherHistory");
+
+if (savedHistory) {
+  locationHistory.push(...JSON.parse(savedHistory));
+  renderHistory();
+  renderTopFive();
+}
+
+updateAuthUI();

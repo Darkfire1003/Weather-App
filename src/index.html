@@ -14,30 +14,31 @@
         Wetter-App <span class="text-xs italic">by Michael Kuscher</span>
       </h1>
 
-      <button
-        id="burger"
-        type="button"
-        aria-expanded="false"
-        aria-controls="navBar"
-        aria-label="Navigationsmenü öffnen"
-        class="hamburger hamburger--collapse lg:hidden"
-      >
-        <span class="hamburger-box" aria-hidden="true">
-          <span class="hamburger-inner"></span>
-        </span>
-      </button>
+      <div class="gap-5 flex">
+        <button
+          id="registerBtn"
+          onclick="openRegisterModal()"
+          class="px-6 py-2 font-bold bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 shadow-md transform transition active:scale-90"
+        >
+          Register
+        </button>
 
-      <nav
-        id="navBar"
-        class="flex text-right justify-center lg:justify-end gap-2 lg:gap-4 hidden"
-        aria-label="Hauptnavigation"
-      >
-        <a class="navhover" href="#hero">Home</a>
-        <a class="navhover" href="#about">Über Mich</a>
-        <a class="navhover" href="#skills">Skills</a>
-        <a class="navhover" href="#projects">Projekte</a>
-        <a class="navhover" href="#contact">Kontakt</a>
-      </nav>
+        <button
+          id="loginBtn"
+          onclick="openLogInModal()"
+          class="px-6 py-2 font-bold bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 shadow-md transform transition active:scale-90"
+        >
+          Login
+        </button>
+
+        <button
+          id="logoutBtn"
+          onclick="logoutUser()"
+          class="hidden px-6 py-2 font-bold bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 shadow-md transform transition active:scale-90"
+        >
+          Logout
+        </button>
+      </div>
     </header>
 
     <main class="mx-auto px-4 py-8">
@@ -45,7 +46,7 @@
       <div
         id="registerModal"
         class="hidden w-full fixed inset-0 z-50 bg-black/60 flex justify-center items-center overflow-y-auto py-6 px-4"
-        onclick="closeAuthModal(event)"
+        onclick="authCloseModal(event)"
       >
         <form id="registerForm" class="auth-signup-form container">
           <p class="auth-signup-title">Register</p>
@@ -101,7 +102,8 @@
 
           <button type="submit" class="auth-signup-submit">Submit</button>
           <p class="auth-signup-signin">
-            Already have an account? <a href="#">Signin</a>
+            Already have an account?
+            <a href="#" onclick="authCloseModal(event)">Signin</a>
           </p>
         </form>
       </div>
@@ -110,9 +112,9 @@
       <div
         id="logInModal"
         class="hidden w-full fixed inset-0 z-50 bg-black/60 flex justify-center items-center overflow-y-auto py-6 px-4"
-        onclick="closeAuthModal(event)"
+        onclick="authCloseModal(event)"
       >
-        <form id="loginForm" class="auth-signup-form container">
+        <form id="logInForm" class="auth-signup-form container">
           <p class="auth-signup-title">Login</p>
 
           <label>
